@@ -15,19 +15,7 @@
 
 # Importation des modules
 import lib.scapy.all as scapy
-
-from lib.sh.sh import service
-
-# Librairies natives Python
-import json
-import time
-
-from multiprocessing import queues
-from struct import *
-
-
-
-
+import folium
 
 # ## FONCTIONS ## #
 list_wifi = {2412:1, 2417:2, 2422:3, 2427:4, 2432:5, 2437:6, 2442:7,
@@ -43,15 +31,17 @@ def verif_and_construction_json(queue_beacon_sie):
     """
     numero_drone = 1
     vs_protocole = b'\x01'   # vs_type du protocole fixé à 0x01 en binaire
+    repertoire_drone = {}
+    nombre_drone=1
 
     while True:
-        
+
+        trouver_repertoire = False
         trame = queue_beacon_sie.get()
 
         vs_type = (trame[scapy.Dot11EltVendorSpecific].info[3:4])     # vs_type de la trame
         
         dataDict = {}
-        data = trame[scapy.Dot11EltVendorSpecific].info[1:]
         data = trame[scapy.Dot11EltVendorSpecific].info[4:]
 
 
@@ -73,8 +63,7 @@ def verif_and_construction_json(queue_beacon_sie):
                             t = ord(data[0:1])
                             l = ord(data[1:2])
                             hopl = 2 + l
-                           #print("t=",t)
-                           #print(data)
+
 
                         except TypeError as err:
                             print("erreur ", err)
@@ -141,8 +130,17 @@ def verif_and_construction_json(queue_beacon_sie):
                 Latitude_decollage  = dataDict.get(8)
                 Longitude_decollage = dataDict.get(9)
                 Vitesse = dataDict.get(10)
-                
 
+                for cle,valeur in repertoire_drone.items() :
+                    if cle==Identifiant:
+                        numero_drone=valeur
+                        trouver_repertoire= True
+                        print("Le drone",valeur,"a de nouveau éte détecté")
+
+                if trouver_repertoire== False:
+                        repertoire_drone[Identifiant]=nombre_drone
+                        nombre_drone=nombre_drone+1
+                        print("ATTENTION : Nouveau drone détecté")
 
                 print(f"------DRONE {numero_drone} ---------")
                 print(f"Identifiant : {Identifiant}")
@@ -154,7 +152,7 @@ def verif_and_construction_json(queue_beacon_sie):
                 print(f"vitesse : {Vitesse}")
                 print("")
 
-                numero_drone= numero_drone + 1
+
 
         
 
@@ -184,15 +182,16 @@ def verif_and_construction_json(queue_beacon_sie):
                 start_latitude = Latitude
 
                 start_longitude = Longitude
-                #my_map = folium.Map(location=[start_latitude, start_longitude], zoom_start=15)
+                my_map = folium.Map(location=[start_latitude, start_longitude], zoom_start=15)
 
 # Ajoutez un marqueur pour la position actuelle du drone
                 drone_latitude = Latitude
                 drone_longitude = Longitude
-                #folium.Marker([drone_latitude, drone_longitude], tooltip=Identifiant).add_to(my_map)
+                nom_drone = f"DRONE {nombre_drone} : {Identifiant}"
+                folium.Marker([drone_latitude, drone_longitude], tooltip=nom_drone).add_to(my_map)
 
 # Affichez la carte
-                #my_map.save('carte_drone.html')
+                my_map.save('carte_drone.html')
 
 #pour voir la carte : file:///home/lea/T%C3%A9l%C3%A9chargements/ReceptionInfoDrone-master/carte_drone.html dans barre de recherche
         
