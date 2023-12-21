@@ -15,7 +15,7 @@
 
 # Importation des modules
 import lib.scapy.all as scapy
-import folium
+
 
 # ## FONCTIONS ## #
 list_wifi = {2412:1, 2417:2, 2422:3, 2427:4, 2432:5, 2437:6, 2442:7,
@@ -33,6 +33,7 @@ def verif_and_construction_json(queue_beacon_sie):
     vs_protocole = b'\x01'   # vs_type du protocole fixé à 0x01 en binaire
     repertoire_drone = {}
     nombre_drone=1
+    repetition=0
 
     while True:
 
@@ -136,13 +137,14 @@ def verif_and_construction_json(queue_beacon_sie):
                         numero_drone=valeur
                         trouver_repertoire= True
                         print("Le drone",valeur,"a de nouveau éte détecté")
+                        repetition=repetition+1
 
                 if trouver_repertoire== False:
                         repertoire_drone[Identifiant]=nombre_drone
                         nombre_drone=nombre_drone+1
                         print("ATTENTION : Nouveau drone détecté")
 
-                print(f"------DRONE {numero_drone} ---------")
+                print(f"------DRONE {numero_drone} {repetition} ---------")
                 print(f"Identifiant : {Identifiant}")
                 print(f"Longitude : {Longitude}")
                 print(f"Altitude : {Altitude}")
@@ -179,19 +181,19 @@ def verif_and_construction_json(queue_beacon_sie):
                 11 : Route vraie
                 """
                 # Créez une carte centrée sur la position de départ du drone
-                start_latitude = Latitude
+                #start_latitude = Latitude
 
-                start_longitude = Longitude
-                my_map = folium.Map(location=[start_latitude, start_longitude], zoom_start=15)
+                #start_longitude = Longitude
+                #my_map = folium.Map(location=[start_latitude, start_longitude], zoom_start=15)
 
 # Ajoutez un marqueur pour la position actuelle du drone
-                drone_latitude = Latitude
-                drone_longitude = Longitude
-                nom_drone = f"DRONE {nombre_drone} : {Identifiant}"
-                folium.Marker([drone_latitude, drone_longitude], tooltip=nom_drone).add_to(my_map)
+                #drone_latitude = Latitude
+                #drone_longitude = Longitude
+                #nom_drone = f"DRONE {nombre_drone} : {Identifiant}"
+                #folium.Marker([drone_latitude, drone_longitude], tooltip=nom_drone).add_to(my_map)
 
 # Affichez la carte
-                my_map.save('carte_drone.html')
+                #my_map.save('carte_drone.html')
 
 #pour voir la carte : file:///home/lea/T%C3%A9l%C3%A9chargements/ReceptionInfoDrone-master/carte_drone.html dans barre de recherche
         

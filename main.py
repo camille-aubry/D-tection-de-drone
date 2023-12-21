@@ -19,6 +19,7 @@ import signal
 import subprocess
 import sys
 from multiprocessing import Process, Queue
+import Interfarce_graphique
 
 
 # Importation des modules
@@ -30,12 +31,6 @@ import lib.sniff
 
 #Taper iwconfig pour connaitre le nom de votre interface wifi
 
-interface = str(input("Entrer le nom de votre interface wifi : "))
-
-if len(interface)<=10:
-    interface_wifi = interface +"mon"
-else :
-    interface_wifi="wlan0mon"
 
 # ## LES FONCTIONS ## #
 def monitorStart():
@@ -52,9 +47,7 @@ def monitorStart():
         subprocess.check_call(f"sudo iwconfig {interface} mode monitor", shell=True)
         subprocess.check_call(f"sudo ifconfig {interface} up", shell=True)
 
-        #airmon_ng("start", interface, 6)
-        #airmon_ng("check", "kill")
-        #subprocess.check_call(f"sudo ifconfig {interface_wifi} up",shell=True)
+       
         print("Interface ",interface,"est maintenant en mode monitor.")
 
     except subprocess.CalledProcessError as e:
@@ -88,6 +81,12 @@ def signal_handler(signal, frame):
     # Quitte le programme
     sys.exit(0)
 
+def ouverture_interface_graphique():
+    app = Interfarce_graphique.Interface()
+    Frame = app.returnFrame()
+    app.mainloop()
+    return app,Frame
+
 
 
 #######################################################
@@ -95,9 +94,27 @@ def signal_handler(signal, frame):
 #######################################################
 
 
+
+
 # Début du script
 print("Lancement du script.")
 print("----------------------")
+
+app,Frame =ouverture_interface_graphique()
+
+
+FrameStart=Frame["StartPage"]
+FrameWifi=Frame["WifiPage"]
+FrameMonitoring=["Monitoring"]
+
+
+interface=FrameWifi.return_interface()
+app.destroy()
+print(interface)
+
+
+
+
 
 try:
     # lancement du monitor
